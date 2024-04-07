@@ -13,9 +13,13 @@ WIDTH=736 #736=800(total width of screen)-64(size of spaceship/enemy 64x64)
 HEIGHT=600
 PLAYERX_START = 370
 PLAYERY_START=480
+NUMBER_OF_ENEMIES = 6
+SCORE_X=10
+SCORE_Y=10
 
 #Variables
 score = 0
+font=pygame.font.Font('freesansbold.ttf',12)
 
 #create the screen: width 800, height 600
 screen=pygame.display.set_mode((WIDTH,HEIGHT))
@@ -36,11 +40,19 @@ playerY=PLAYERY_START
 playerX_change=0
 
 #Initial state of the Enemy
-enemyImg=pygame.image.load('enemy.png')
-enemyX=random.randint(0,WIDTH)
-enemyY= random.randint(50,150)
-enemyX_change=0.1
-enemyY_change=10
+#Creating  multiple enemies
+enemyImg=[]
+enemyX=[]
+enemyY=[]
+enemyX_change=[]
+enemyY_change=[]
+
+for i in range(NUMBER_OF_ENEMIES):
+    enemyImg.append(pygame.image.load('enemy.png'))
+    enemyX.append(random.randint(0,WIDTH))
+    enemyY.append(random.randint(50,150))
+    enemyX_change.append(0.1)
+    enemyY_change.append(10)
 
 #Initial state of the Bullet
 #bullet_state="ready" You can't see the bullet on the screen
@@ -61,7 +73,7 @@ def player(x,y):
     screen.blit(playerImg, (x, y))
 #end def
 
-def enemy(x,y):
+def enemy(enemyImg, x,y):
     screen.blit(enemyImg,(x,y))
 #end def
 
@@ -135,19 +147,34 @@ while running:
         playerX=736
     #end if 
 
-    #Change theposition of the enemy horizontally
-    enemyX+=enemyX_change
+    for i in range(NUMBER_OF_ENEMIES):
 
+        #Change the position of the enemy horizontally
+        enemyX[i]+=enemyX_change[i]
 
-    #Adding boundaries to the movement of the enemy.
-    if enemyX<=0:
-        enemyX_change=0.1 #When the enemy reaches the left boundary, the position of x should be positive i.e. it should move right
-        enemyY+=enemyY_change
-        
-    elif enemyX>=736:
-        enemyX_change=-0.1  #When the enemy reaches the right boundary, the position of x should be negative i.e. it should move left
-        enemyY+=enemyY_change    
-    #end if
+        #Adding boundaries to the movement of the enemy.
+        if enemyX[i]<=0:
+            enemyX_change[i]=0.1 #When the enemy reaches the left boundary, the position of x should be positive i.e. it should move right
+            enemyY[i]+=enemyY_change[i]
+            
+        elif enemyX[i]>=736:
+            enemyX_change[i]=-0.1  #When the enemy reaches the right boundary, the position of x should be negative i.e. it should move left
+            enemyY[i]+=enemyY_change[i]    
+        #end if
+
+        #Check for Collision detection
+        collision = is_collision(enemyX[i], enemyY[i], bulletX, bulletY)
+        if collision:
+            bulletX = playerX
+            bullet_state = "ready"
+            score+=1
+            #Generate new position of the enemy
+            enemyX[i]=random.randint(0,WIDTH)
+            enemyY[i]= random.randint(50,150)
+        #end if
+    
+        enemy(enemyImg[i],enemyX[i], enemyY[i])
+      #end for loop
 
     #To fire the bullet
     if bullet_state == "fire":
@@ -160,21 +187,8 @@ while running:
         bulletY = playerY
         bullet_state = "ready"
     #end if
-
-    #Check for Collision detection
-    collision = is_collision(enemyX, enemyY, bulletX, bulletY)
-    if collision:
-        bulletX = playerX
-        bullet_state = "ready"
-        score+=1
-        print(score)
-        #Generate new position of the enemy
-        enemyX=random.randint(0,WIDTH)
-        enemyY= random.randint(50,150)
-    #end if
-
-    enemy(enemyX, enemyY)
-    player(playerX, playerY)
     
+    player(playerX, playerY)
     pygame.display.update()
+   
 #end while
