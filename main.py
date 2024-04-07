@@ -22,6 +22,7 @@ SCORE_Y=10
 #Variables
 score=0
 score_font=pygame.font.Font('freesansbold.ttf',12)
+game_over_font=pygame.font.Font('freesansbold.ttf',20)
 
 #create the screen: width 800, height 600
 screen=pygame.display.set_mode((WIDTH,HEIGHT))
@@ -87,8 +88,6 @@ def fire_bullet(x,y):
     #x+16 & y+10 The bullet should appear on the centre of the spaceship
     screen.blit(bulletImg,(x+16,y+10))
 
-    
-#end def
 
 #Collision Detection
 # Distance between two points and the midpoint: D= square root of(square of (x2-x1)+square of(y2-y1))
@@ -107,6 +106,13 @@ def show_score(score):
     screen.blit(score_text, (SCORE_X,SCORE_Y))#draws the score on the top-left corner
     pygame.display.update()
     time.sleep(2)
+
+def game_over_text():
+    game_over_text=game_over_font.render("Game over! Your score = "+str(score),True,'#FFFFFF')
+    screen.blit(game_over_text, (SCORE_X,30))#draws the score on the top-left corner
+    pygame.display.update()
+    time.sleep(5)
+
 # end def
 
 #Game loop
@@ -162,6 +168,15 @@ while running:
 
     for i in range(NUMBER_OF_ENEMIES):
 
+        #Game Over condition: When one of the enemies comes to 440 pixel, then it should display game over screen with the score
+        if enemyY[i]>440:
+            #Move all the enemies out of the screen i.e. place them with Y coordinate as 2000
+            for j in range(NUMBER_OF_ENEMIES):
+                enemyY[j]=2000
+            game_over_text()
+            break
+        #end if 
+
         #Change the position of the enemy horizontally
         enemyX[i]+=enemyX_change[i]
 
@@ -175,12 +190,17 @@ while running:
             enemyY[i]+=enemyY_change[i]    
         #end if
 
+        print(bulletX)
+        print(bulletY)
+        print(enemyX[i])
+        print(enemyY[i])
         #Check for Collision detection
         collision = is_collision(enemyX[i], enemyY[i], bulletX, bulletY)
+        print(collision)
         if collision:
-            mixer.music.load('explosion.mp3')
-            mixer.music.play(fade_ms=500) 
-            bulletX = playerX
+            explosion_sound=mixer.Sound('explosion.mp3')
+            explosion_sound.play() 
+            bulletY = PLAYERY_START
             bullet_state = "ready"
             score+=1
             show_score(score)
