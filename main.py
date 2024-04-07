@@ -3,6 +3,7 @@
 import pygame 
 import random
 import math
+import time
 
 #Initialise the pygame
 pygame.init()
@@ -18,8 +19,8 @@ SCORE_X=10
 SCORE_Y=10
 
 #Variables
-score = 0
-font=pygame.font.Font('freesansbold.ttf',12)
+score=0
+score_font=pygame.font.Font('freesansbold.ttf',12)
 
 #create the screen: width 800, height 600
 screen=pygame.display.set_mode((WIDTH,HEIGHT))
@@ -93,10 +94,12 @@ def is_collision(enemyX, enemyY, bulletX, bulletY):
     else:
         return False
     #end if
-
-        # #Render the crash text 
-        # crash_text = crash_font.render("Eaten! You score +1", True, RED) 
-        # screen.blit(crash_text, (320, 270))     
+    
+def show_score(score):
+    score_text=score_font.render("Score:"+str(score),True,'#FFFFFF')
+    screen.blit(score_text, (SCORE_X,SCORE_Y))#draws the score on the top-left corner
+    pygame.display.update()
+    time.sleep(2)
 # end def
 
 #Game loop
@@ -168,6 +171,8 @@ while running:
             bulletX = playerX
             bullet_state = "ready"
             score+=1
+            show_score(score)
+
             #Generate new position of the enemy
             enemyX[i]=random.randint(0,WIDTH)
             enemyY[i]= random.randint(50,150)
