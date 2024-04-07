@@ -4,6 +4,7 @@ import pygame
 import random
 import math
 import time
+from pygame import mixer
 
 #Initialise the pygame
 pygame.init()
@@ -28,6 +29,9 @@ screen=pygame.display.set_mode((WIDTH,HEIGHT))
 #Background
 background=pygame.image.load("background.jpg")
 
+#Background sound
+mixer.music.load('background.mp3')
+mixer.music.play(-1) #-1 to play the background in a loop, not just once
 
 #Title & Icon
 pygame.display.set_caption("Space Invaders")
@@ -82,6 +86,8 @@ def fire_bullet(x,y):
     #Place the  bullet relative to the spaceship
     #x+16 & y+10 The bullet should appear on the centre of the spaceship
     screen.blit(bulletImg,(x+16,y+10))
+
+    
 #end def
 
 #Collision Detection
@@ -90,6 +96,7 @@ def is_collision(enemyX, enemyY, bulletX, bulletY):
     distance = math.sqrt((math.pow(enemyX-bulletX,2))+ (math.pow(enemyY-bulletY, 2))) #Calculation for collision 
     
     if distance <= COLLISION_DISTANCE:  
+
         return True
     else:
         return False
@@ -126,6 +133,8 @@ while running:
                     bulletY_change = -0.3
                     bulletX=playerX  
                     bullet_state="fire"
+                    bullet_sound=mixer.Sound('shoot.mp3')
+                    bullet_sound.play()
                 #end if
             #end if
         #end if
@@ -139,6 +148,7 @@ while running:
     #Background color
     screen.fill((0,0,0))
     screen.blit(background, (0,0))
+
    
    #Change the position of the player horizontally
     playerX+=playerX_change
@@ -168,6 +178,8 @@ while running:
         #Check for Collision detection
         collision = is_collision(enemyX[i], enemyY[i], bulletX, bulletY)
         if collision:
+            mixer.music.load('explosion.mp3')
+            mixer.music.play(fade_ms=500) 
             bulletX = playerX
             bullet_state = "ready"
             score+=1
